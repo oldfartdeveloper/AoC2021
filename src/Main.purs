@@ -43,13 +43,17 @@ increasingCount (x : xs) = increasingCount' x xs 0
   where
   increasingCount' :: Int -> List Int -> Int -> Int
   increasingCount' _ Nil acc = acc
-  increasingCount' prev (next : Nil) acc = acc
+  increasingCount' prev (next : Nil) acc = determineIncr acc prev next
   increasingCount' prev (next : xs) acc =
     increasingCount' next xs
-      ( acc +
-          if prev < next then 1
-          else 0
+      ( determineIncr acc prev next
       )
+
+determineIncr :: Int -> Int -> Int -> Int
+determineIncr acc prev next =
+  acc +
+    if prev < next then 1
+    else 0
 
 {- -}
 
@@ -61,6 +65,5 @@ x = fromFoldable
   , 236
   , 237
   , 252
-  , 254
-  ,
+  , 251
   ]
