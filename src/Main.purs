@@ -11,6 +11,7 @@ import Effect (Effect)
 import Effect.Console (log)
 import Node.Encoding (Encoding(ASCII))
 import Node.FS.Sync (readTextFile)
+import Partial.Unsafe (unsafePartial)
 
 {- | 1759 is the right answer!
 -}
