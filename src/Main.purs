@@ -30,7 +30,6 @@ fix x = unsafePartial (fromJust x)
 calculate :: Int -> Int -> Int -> Int
 calculate acc prev next = acc + (if (prev < next) then 1 else 0)
 
-{- -}
 increasingCount :: List Int -> Int
 increasingCount Nil = 0
 increasingCount (x : xs) = increasingCount' x xs 0
@@ -49,8 +48,6 @@ determineIncr acc prev next =
     if prev < next then 1
     else 0
 
-{- -}
-
 x = fromFoldable
   [ 186
   , 201
@@ -61,3 +58,4 @@ x = fromFoldable
   , 252
   , 251
   ]
+
