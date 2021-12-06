@@ -1,12 +1,11 @@
 module Main where
 
 import Prelude
-import Data.List (List(..), (:), catMaybes, filter, foldl, fromFoldable, head, length, null)
+import Data.List (List(..), catMaybes, fromFoldable, (:))
 import Data.Int (fromString)
-import Data.Maybe (Maybe(..), fromJust)
-import Data.Show (show)
+import Data.Maybe (Maybe, fromJust)
+-- import Data.Show (show)
 import Data.String.Utils (lines)
-import Data.Tuple (Tuple(Tuple), fst, snd)
 import Effect (Effect)
 import Effect.Console (log)
 import Node.Encoding (Encoding(ASCII))
@@ -25,7 +24,7 @@ getNumbers contents =
   catMaybes $ map fromString $ fromFoldable $ lines contents
 
 fix :: Maybe Int -> Int
-fix x = unsafePartial (fromJust x)
+fix = unsafePartial $ fromJust
 
 calculate :: Int -> Int -> Int -> Int
 calculate acc prev next = acc + (if (prev < next) then 1 else 0)
@@ -37,8 +36,8 @@ increasingCount (x : xs) = increasingCount' x xs 0
   increasingCount' :: Int -> List Int -> Int -> Int
   increasingCount' _ Nil acc = acc
   increasingCount' prev (next : Nil) acc = determineIncr acc prev next
-  increasingCount' prev (next : xs) acc =
-    increasingCount' next xs
+  increasingCount' prev (next : xs') acc =
+    increasingCount' next xs'
       ( determineIncr acc prev next
       )
 
@@ -48,14 +47,17 @@ determineIncr acc prev next =
     if prev < next then 1
     else 0
 
+x :: List Int
 x = fromFoldable
-  [ 186
-  , 201
-  , 205
-  , 234
-  , 236
-  , 237
-  , 252
-  , 251
+  [ 199
+  , 200
+  , 208
+  , 210
+  , 200
+  , 207
+  , 240
+  , 269
+  , 260
+  , 263
   ]
 
