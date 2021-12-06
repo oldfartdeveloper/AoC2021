@@ -1,7 +1,7 @@
 module Main where
 
 import Prelude
-import Data.List (List(..), (:), filter, foldl, fromFoldable, head, length, null)
+import Data.List (List(..), (:), catMaybes, filter, foldl, fromFoldable, head, length, null)
 import Data.Int (fromString)
 import Data.Maybe (Maybe(..), fromJust)
 import Data.Show (show)
@@ -22,13 +22,7 @@ main = do
 
 getNumbers :: String -> List Int
 getNumbers contents =
-  map convertStrToInt $ fromFoldable $ lines contents
-
--- Note: this will crash if there's an empty line at the end
--- of the text file
-convertStrToInt :: String -> Int
-convertStrToInt str =
-  unsafePartial (fromJust $ fromString str)
+  catMaybes $ map fromString $ fromFoldable $ lines contents
 
 fix :: Maybe Int -> Int
 fix x = unsafePartial (fromJust x)
