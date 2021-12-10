@@ -4,7 +4,6 @@ import Prelude
 import Data.List (List(..), catMaybes, fromFoldable, (:))
 import Data.Int (fromString)
 import Data.Maybe (Maybe, fromJust)
--- import Data.Show (show)
 import Data.String.Utils (lines)
 import Effect (Effect)
 import Effect.Console (log)
@@ -17,27 +16,24 @@ import Partial.Unsafe (unsafePartial)
 main :: Effect Unit
 main = do
   contents <- readTextFile ASCII "src/File1.txt"
-  log $ show $ increasingCount $ getNumbers contents
+  log $ show $ day1Part2 $ getNumbers contents
 
 getNumbers :: String -> List Int
 getNumbers contents =
   catMaybes $ map fromString $ fromFoldable $ lines contents
 
-fix :: Maybe Int -> Int
-fix = unsafePartial $ fromJust
+day1Part2 :: List Int -> Int
+day1Part2 xs = day1 xs
 
-calculate :: Int -> Int -> Int -> Int
-calculate acc prev next = acc + (if (prev < next) then 1 else 0)
-
-increasingCount :: List Int -> Int
-increasingCount Nil = 0
-increasingCount (x : xs) = increasingCount' x xs 0
+day1 :: List Int -> Int
+day1 Nil = 0
+day1 (x : xs) = day1' x xs 0
   where
-  increasingCount' :: Int -> List Int -> Int -> Int
-  increasingCount' _ Nil acc = acc
-  increasingCount' prev (next : Nil) acc = determineIncr acc prev next
-  increasingCount' prev (next : xs') acc =
-    increasingCount' next xs'
+  day1' :: Int -> List Int -> Int -> Int
+  day1' _ Nil acc = acc
+  day1' prev (next : Nil) acc = determineIncr acc prev next
+  day1' prev (next : xs') acc =
+    day1' next xs'
       ( determineIncr acc prev next
       )
 
