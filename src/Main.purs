@@ -35,7 +35,7 @@ main :: Effect Unit
 main = do
   contents <- readTextFile ASCII "src/File1.txt"
   -- log $ show $ day1 $ getNumbers contents
-  log $ show $ day1 $ day1Part2 $ {- getNumbers -} sample
+  log $ show $ day1 $ day1Part2 $ getNumbers contents
 
 getNumbers :: String -> List Int
 getNumbers contents =
