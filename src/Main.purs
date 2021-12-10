@@ -6,7 +6,9 @@ import Data.Generic.Rep (class Generic)
 import Data.List
   ( List(..)
   , catMaybes
+  , concat
   , fromFoldable
+  , length
   , null
   , tail
   , take
@@ -29,9 +31,8 @@ import Node.FS.Sync (readTextFile)
 main :: Effect Unit
 main = do
   contents <- readTextFile ASCII "src/File1.txt"
-  log $ show $ day1 $ getNumbers contents
-
--- log $ show $ day1Part2 $ getNumbers contents
+  -- log $ show $ day1 $ getNumbers contents
+  log $ show $ day1Part2 $ getNumbers contents
 
 getNumbers :: String -> List Int
 getNumbers contents =
@@ -40,9 +41,9 @@ getNumbers contents =
 day1Part2 :: List Int -> Int
 day1Part2 arr =
   let
-    tokens = foldl buildTriplets (Token { arr: arr, sums: Nil }) sample
+    token = foldl buildTriplets (Token { arr: arr, sums: Nil }) sample
   in
-    42
+    14
 
 newtype Token = Token { arr :: List Int, sums :: List Int }
 
