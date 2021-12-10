@@ -27,14 +27,11 @@ import Effect.Console (log)
 import Node.Encoding (Encoding(ASCII))
 import Node.FS.Sync (readTextFile)
 
--- import Partial.Unsafe (unsafePartial)
-
-{- | 1759 is the right answer!
+{- | 1805 is the right answer!
 -}
 main :: Effect Unit
 main = do
   contents <- readTextFile ASCII "src/File1.txt"
-  -- log $ show $ day1 $ getNumbers contents
   log $ show $ day1 $ day1Part2 $ getNumbers contents
 
 getNumbers :: String -> List Int
@@ -42,10 +39,10 @@ getNumbers contents =
   catMaybes $ map fromString $ fromFoldable $ lines contents
 
 day1Part2 :: List Int -> List Int
-day1Part2 lst =
+day1Part2 list =
   let
     token =
-      foldl buildTriplets (Token { lst: lst, sums: Nil }) sample
+      foldl buildTriplets (Token { lst: list, sums: Nil }) list
   in
     reverse $ drop 2 $ (\(Token t) -> t.sums) token
 
