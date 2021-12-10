@@ -1,23 +1,28 @@
 module Main where
 
 import Prelude
-import Data.Foldable (foldl)
+import Data.Foldable (foldl, sum)
+import Data.Generic.Rep (class Generic)
 import Data.List
   ( List(..)
   , catMaybes
-  , drop
   , fromFoldable
-  , singleton
+  , null
+  , tail
+  , take
   , (:)
   )
 import Data.Int (fromString)
-import Data.Maybe (Maybe, fromJust)
+import Data.Maybe (Maybe(..))
+import Data.Show (class Show)
+import Data.Show.Generic (genericShow)
 import Data.String.Utils (lines)
 import Effect (Effect)
 import Effect.Console (log)
 import Node.Encoding (Encoding(ASCII))
 import Node.FS.Sync (readTextFile)
-import Partial.Unsafe (unsafePartial)
+
+-- import Partial.Unsafe (unsafePartial)
 
 {- | 1759 is the right answer!
 -}
@@ -25,29 +30,30 @@ main :: Effect Unit
 main = do
   contents <- readTextFile ASCII "src/File1.txt"
   log $ show $ day1 $ getNumbers contents
-  -- log $ show $ day1Part2 $ getNumbers contents
+
+-- log $ show $ day1Part2 $ getNumbers contents
 
 getNumbers :: String -> List Int
 getNumbers contents =
   catMaybes $ map fromString $ fromFoldable $ lines contents
 
 day1Part2 :: List Int -> Int
-day1Part2 xs =
+day1Part2 arr =
   let
-    token =
-      Token
-        { x3 : drop 3 xs
-        , x : xs
-        , tripletts : Nil
-        }
-    _ = foldl buildTriplets (singleton token) sample
+    tokens = foldl buildTriplets (Token { arr: arr, sums: Nil }) sample
   in
     42
 
-data Token = Token { x3 :: List Int, x :: List Int, tripletts :: List Int }
+newtype Token = Token { arr :: List Int, sums :: List Int }
 
-buildTriplets :: List Token -> Int -> List Token
-buildTriplets tokens x = tokens
+buildTriplets :: Token -> Int -> Token
+buildTriplets (Token t) _ =
+  Token
+    { sums: Cons (sum $ take 3 t.arr) t.sums
+    , arr: case tail t.arr of
+        Just x -> x
+        Nothing -> Nil
+    }
 
 day1 :: List Int -> Int
 day1 Nil = 0
