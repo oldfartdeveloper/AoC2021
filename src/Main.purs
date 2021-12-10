@@ -7,15 +7,18 @@ import Data.List
   ( List(..)
   , catMaybes
   , concat
+  , drop
   , fromFoldable
   , length
   , null
+  , reverse
   , tail
   , take
   , (:)
   )
 import Data.Int (fromString)
 import Data.Maybe (Maybe(..))
+import Data.Newtype (class Newtype, unwrap)
 import Data.Show (class Show)
 import Data.Show.Generic (genericShow)
 import Data.String.Utils (lines)
@@ -32,26 +35,31 @@ main :: Effect Unit
 main = do
   contents <- readTextFile ASCII "src/File1.txt"
   -- log $ show $ day1 $ getNumbers contents
-  log $ show $ day1Part2 $ getNumbers contents
+  log $ show $ day1Part2 $ {- getNumbers -} sample
 
 getNumbers :: String -> List Int
 getNumbers contents =
   catMaybes $ map fromString $ fromFoldable $ lines contents
 
-day1Part2 :: List Int -> Int
-day1Part2 arr =
+day1Part2 :: List Int -> List Int
+day1Part2 lst =
   let
-    token = foldl buildTriplets (Token { arr: arr, sums: Nil }) sample
+    token =
+      foldl buildTriplets (Token { lst: lst, sums: Nil }) sample
   in
-    14
+    reverse $ drop 2 $ (\(Token t) -> t.sums) token
 
-newtype Token = Token { arr :: List Int, sums :: List Int }
+newtype Token = Token { lst :: List Int, sums :: List Int }
+
+derive instance Generic Token _
+instance Show Token where
+  show = genericShow
 
 buildTriplets :: Token -> Int -> Token
 buildTriplets (Token t) _ =
   Token
-    { sums: Cons (sum $ take 3 t.arr) t.sums
-    , arr: case tail t.arr of
+    { sums: Cons (sum $ take 3 t.lst) t.sums
+    , lst: case tail t.lst of
         Just x -> x
         Nothing -> Nil
     }

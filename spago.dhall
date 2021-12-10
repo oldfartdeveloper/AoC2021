@@ -18,6 +18,7 @@ to generate this file without the comments in this block.
   , "integers"
   , "lists"
   , "maybe"
+  , "newtype"
   , "node-buffer"
   , "node-fs"
   , "partial"
