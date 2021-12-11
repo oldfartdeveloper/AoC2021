@@ -17,11 +17,11 @@ import Node.Encoding (Encoding(ASCII))
 import Node.FS.Sync (readTextFile)
 import Partial.Unsafe (unsafePartial)
 
-{- | ? is the right answer!
+{- | 1320534480 is the right answer!
 -}
 main :: Effect Unit
 main = do
-  contents <- readTextFile ASCII "src/sample.txt"
+  contents <- readTextFile ASCII "src/File1.txt"
   log $ show $ day2 $ getDeltas contents
 
 getDeltas :: String -> Array DirType
