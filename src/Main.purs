@@ -1,21 +1,22 @@
 module Main where
 
 import Prelude
+import Data.Array (head, last, tail)
 import Data.Foldable (foldl, sum)
 import Data.Generic.Rep (class Generic)
-import Data.List
-  ( List(..)
-  , catMaybes
-  , concat
-  , drop
-  , fromFoldable
-  , length
-  , null
-  , reverse
-  , tail
-  , take
-  , (:)
-  )
+-- import Data.List
+--   ( List(..)
+--   , catMaybes
+--   , concat
+--   , drop
+--   , fromFoldable
+--   , length
+--   , null
+--   , reverse
+--   , tail
+--   , take
+--   , (:)
+--   )
 import Data.Int (fromString)
 import Data.Maybe (Maybe(..), fromJust)
 import Data.Newtype (class Newtype, unwrap)
@@ -37,7 +38,7 @@ import Partial.Unsafe (unsafePartial)
 -}
 main :: Effect Unit
 main = do
-  contents <- readTextFile ASCII "src/File2.txt"
+  contents <- readTextFile ASCII "src/sample.txt"
   log $ show $ day2 $ getDeltas contents
 
 getDeltas :: String -> Array DirType
@@ -66,11 +67,10 @@ day2 arr =
 convertStringToToken :: String -> DirType
 convertStringToToken line =
   let
-    -- [dir, distance] = split (Pattern " ") line
-    -- dst = unsafePartial $ fromJust $ fromString distance
-    dir = "forward"
-    distance = "42"
-    dst = 42
+    pair = split (Pattern " ") line
+    dir = unsafePartial $ fromJust $ head pair
+    distance = unsafePartial $ fromJust $ last pair
+    dst = unsafePartial $ fromJust $ fromString distance
   in
     case dir of
       "forward" -> DirType { dir : Forward, distance : dst }
