@@ -53,12 +53,12 @@ day2 arr =
               case dt.dir of
                 Forward -> Tuple
                   ((fst acc) + dt.distance)
-                  dt.distance
+                  (snd acc)
                 Down -> Tuple
-                  dt.distance
+                  (fst acc)
                   ((snd acc) + dt.distance)
                 Up -> Tuple
-                  dt.distance
+                  (fst acc)
                   ((snd acc) - dt.distance)
             ) (Tuple 0 0) arr
   in
