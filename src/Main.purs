@@ -4,7 +4,7 @@ import Prelude
 import Data.Array (head, last)
 import Data.Foldable (foldl)
 import Data.Generic.Rep (class Generic)
-import Data.Int (fromString)
+import Data.Int (binary, fromStringAs, radix)
 import Data.Maybe (fromJust)
 import Data.Newtype (class Newtype, unwrap)
 import Data.Show.Generic (genericShow)
@@ -17,95 +17,44 @@ import Node.Encoding (Encoding(ASCII))
 import Node.FS.Sync (readTextFile)
 import Partial.Unsafe (unsafePartial)
 
-{- | 1320534480 is the right answer!
+{- | ? is the right answer!
 -}
 main :: Effect Unit
 main = do
-  contents <- readTextFile ASCII "src/File1.txt"
-  log $ show $ day2 $ getDeltas contents
+  contents <- readTextFile ASCII "src/sample.txt"
+  log $ show $ day3 $ getBits contents
 
-getDeltas :: String -> Array DirType
-getDeltas deltas =
-  map convertStringToToken $ lines deltas
+newtype Diagnostic = Diagnostic
+  { gamma :: Int
+  , epsilon :: Int
+  }
 
-day2 :: Array DirType -> Int
-day2 arr =
+derive instance Newtype Diagnostic _
+
+day3 :: Array Int -> Int
+day3 arr =
   let
     result =
       foldl
-        ( \(Displacements d) (DirType dt) ->
-            case dt.dir of
-              Forward -> Displacements
-                { horiz: d.horiz + dt.distance
-                , aim: d.aim
-                , depth: d.depth + (d.aim * dt.distance)
-                }
-              Down -> Displacements
-                { horiz: d.horiz
-                , aim: d.aim + dt.distance
-                , depth: d.depth
-                }
-              Up -> Displacements
-                { horiz: d.horiz
-                , aim: d.aim - dt.distance
-                , depth: d.depth
-                }
+        ( \(Diagnostic d) x ->
+          Diagnostic
+            { gamma : 0
+            , epsilon : 0
+            }
         )
-        ( Displacements
-            { horiz: 0
-            , depth: 0
-            , aim: 0
+        ( Diagnostic
+            { gamma: 0
+            , epsilon: 0
             }
         )
         arr
   in
-    (unwrap result).horiz * (unwrap result).depth
+    (unwrap result).gamma * (unwrap result).epsilon
 
-convertStringToToken :: String -> DirType
-convertStringToToken line =
-  let
-    pair = split (Pattern " ") line
-    dir = unsafePartial $ fromJust $ head pair
-    distance = unsafePartial $ fromJust $ last pair
-    dst = unsafePartial $ fromJust $ fromString distance
-  in
-    case dir of
-      "forward" -> DirType { dir: Forward, distance: dst }
-      "down" -> DirType { dir: Down, distance: dst }
-      "up" -> DirType { dir: Up, distance: dst }
-      _ -> DirType { dir: Forward, distance: 0 } -- do nothing
+convertStringToBits :: String -> Int
+convertStringToBits line =
+  fromStringAs binary line
 
-data Dir
-  = Forward
-  | Down
-  | Up
-
-derive instance Generic Dir _
-instance Show Dir where
-  show = genericShow
-
-newtype DirType = DirType { dir :: Dir, distance :: Int }
-
-derive instance Generic DirType _
-instance Show DirType where
-  show = genericShow
-
-newtype Displacements = Displacements
-  { horiz :: Int, depth :: Int, aim :: Int }
-
-derive instance Generic Displacements _
-instance Show Displacements where
-  show = genericShow
-
-derive instance Newtype Displacements _
-
-sample :: String
-sample =
-  """
-forward 5
-down 5
-forward 8
-up 3
-down 8
-forward 2
-"""
+getBits :: String -> Array Int
+getBits deltas =
+  map convertStringToBits $ lines deltas
