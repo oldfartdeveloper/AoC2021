@@ -1,21 +1,18 @@
 module Main where
 
 import Prelude
-import Data.Array (catMaybes, head, last)
+import Data.Array (catMaybes)
 import Data.Foldable (foldl)
 import Data.Generic.Rep (class Generic)
-import Data.Int (binary, fromStringAs, radix)
-import Data.Maybe (Maybe, fromJust)
+import Data.Int (binary, fromStringAs)
+import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype, unwrap)
 import Data.Show.Generic (genericShow)
-import Data.String (split)
-import Data.String.Pattern (Pattern(Pattern))
 import Data.String.Utils (lines)
 import Effect (Effect)
 import Effect.Console (log)
 import Node.Encoding (Encoding(ASCII))
 import Node.FS.Sync (readTextFile)
-import Partial.Unsafe (unsafePartial)
 
 {- | ? is the right answer!
 -}
@@ -30,17 +27,20 @@ newtype Diagnostic = Diagnostic
   }
 
 derive instance Newtype Diagnostic _
+derive instance Generic Diagnostic _
+instance Show Diagnostic where
+  show = genericShow
 
 day3 :: Array Int -> Int
 day3 arr =
   let
     result =
       foldl
-        ( \(Diagnostic d) x ->
-          Diagnostic
-            { gamma : 0
-            , epsilon : 0
-            }
+        ( \(Diagnostic d) bit ->
+            Diagnostic
+              { gamma: d.gamma
+              , epsilon: d.epsilon
+              }
         )
         ( Diagnostic
             { gamma: 0
