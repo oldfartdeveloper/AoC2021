@@ -17,7 +17,7 @@ import Data.List
   , (:)
   )
 import Data.Int (fromString)
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), fromJust)
 import Data.Newtype (class Newtype, unwrap)
 import Data.Show (class Show)
 import Data.Show.Generic (genericShow)
@@ -29,6 +29,7 @@ import Effect (Effect)
 import Effect.Console (log)
 import Node.Encoding (Encoding(ASCII))
 import Node.FS.Sync (readTextFile)
+import Partial (crashWith)
 import Partial.Unsafe (unsafePartial)
 
 
@@ -36,15 +37,15 @@ import Partial.Unsafe (unsafePartial)
 -}
 main :: Effect Unit
 main = do
-  contents <- sample -- readTextFile ASCII "src/File1.txt"
+  contents <- readTextFile ASCII "src/File2.txt"
   log $ show $ day2 $ getDeltas contents
 
 getDeltas :: String -> Array DirType
 getDeltas deltas =
-  map convertStringToToken $ fromFoldable $ lines deltas
+  map convertStringToToken $ lines deltas
 
 day2 :: Array DirType -> Int
-day2 list =
+day2 arr =
   let
     result =
       foldl (\acc (DirType dt) ->
@@ -58,20 +59,24 @@ day2 list =
                 Up -> Tuple
                   dt.distance
                   ((snd acc) - dt.distance)
-            ) (Tuple 0 0) list
+            ) (Tuple 0 0) arr
   in
     (fst result) * (snd result)
 
 convertStringToToken :: String -> DirType
 convertStringToToken line =
   let
-    [dir, distance] = split (Pattern " ") line
-    dst = fromString distance
+    -- [dir, distance] = split (Pattern " ") line
+    -- dst = unsafePartial $ fromJust $ fromString distance
+    dir = "forward"
+    distance = "42"
+    dst = 42
   in
     case dir of
       "forward" -> DirType { dir : Forward, distance : dst }
       "down"    -> DirType { dir : Down,    distance : dst }
       "up"      -> DirType { dir : Up,      distance : dst }
+      _         -> DirType { dir : Forward, distance : 0   } -- do nothing
 
 data Dir
   = Forward
