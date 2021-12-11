@@ -2,10 +2,11 @@ module Main where
 
 import Prelude
 import Data.Array (head, last)
-import Data.Foldable (foldl)
+import Data.Foldable (class Foldable, foldl)
 import Data.Generic.Rep (class Generic)
 import Data.Int (fromString)
 import Data.Maybe (fromJust)
+import Data.Newtype (class Newtype, unwrap)
 import Data.Show.Generic (genericShow)
 import Data.String (split)
 import Data.String.Pattern (Pattern(Pattern))
@@ -17,11 +18,11 @@ import Node.Encoding (Encoding(ASCII))
 import Node.FS.Sync (readTextFile)
 import Partial.Unsafe (unsafePartial)
 
-{- | 1459206 is the right answer!
+{- | ? is the right answer!
 -}
 main :: Effect Unit
 main = do
-  contents <- readTextFile ASCII "src/File1.txt"
+  contents <- readTextFile ASCII "src/sample.txt"
   log $ show $ day2 $ getDeltas contents
 
 getDeltas :: String -> Array DirType
@@ -33,22 +34,32 @@ day2 arr =
   let
     result =
       foldl
-        ( \acc (DirType dt) ->
+        ( \(Displacements d) (DirType dt) ->
             case dt.dir of
-              Forward -> Tuple
-                ((fst acc) + dt.distance)
-                (snd acc)
-              Down -> Tuple
-                (fst acc)
-                ((snd acc) + dt.distance)
-              Up -> Tuple
-                (fst acc)
-                ((snd acc) - dt.distance)
+              Forward -> Displacements
+                { horiz: d.horiz + dt.distance
+                , aim: d.aim
+                , depth: d.depth + (d.aim * dt.distance)
+                }
+              Down -> Displacements
+                { horiz: d.horiz
+                , aim: d.aim + dt.distance
+                , depth: d.depth
+                }
+              Up -> Displacements
+                { horiz: d.horiz
+                , aim: d.aim - dt.distance
+                , depth: d.depth
+                }
         )
-        (Tuple 0 0)
-        arr
+        ( Displacements
+            { horiz: 0
+            , depth: 0
+            , aim: 0
+            }
+        )
   in
-    (fst result) * (snd result)
+    (unwrap result).horiz * (unwrap result).depth
 
 convertStringToToken :: String -> DirType
 convertStringToToken line =
@@ -73,11 +84,20 @@ derive instance Generic Dir _
 instance Show Dir where
   show = genericShow
 
-newtype DirType = DirType { dir :: Dir, distance :: Int }
+newtype DirType = DirType { dir :: Dir, distance :: Int, aim :: Int }
 
 derive instance Generic DirType _
 instance Show DirType where
   show = genericShow
+
+newtype Displacements = Displacements
+  { horiz :: Int, depth :: Int, aim :: Int }
+
+derive instance Generic Displacements _
+instance Show Displacements where
+  show = genericShow
+
+derive instance Newtype Displacements _
 
 sample :: String
 sample =
