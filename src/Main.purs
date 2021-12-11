@@ -1,11 +1,11 @@
 module Main where
 
 import Prelude
-import Data.Array (head, last)
+import Data.Array (catMaybes, head, last)
 import Data.Foldable (foldl)
 import Data.Generic.Rep (class Generic)
 import Data.Int (binary, fromStringAs, radix)
-import Data.Maybe (fromJust)
+import Data.Maybe (Maybe, fromJust)
 import Data.Newtype (class Newtype, unwrap)
 import Data.Show.Generic (genericShow)
 import Data.String (split)
@@ -51,10 +51,10 @@ day3 arr =
   in
     (unwrap result).gamma * (unwrap result).epsilon
 
-convertStringToBits :: String -> Int
+convertStringToBits :: String -> Maybe Int
 convertStringToBits line =
   fromStringAs binary line
 
 getBits :: String -> Array Int
 getBits deltas =
-  map convertStringToBits $ lines deltas
+  catMaybes $ map convertStringToBits $ lines deltas
