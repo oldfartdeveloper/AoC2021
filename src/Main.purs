@@ -21,75 +21,80 @@ import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype, unwrap)
 import Data.Show (class Show)
 import Data.Show.Generic (genericShow)
+import Data.String (split)
+import Data.String.Pattern (Pattern(Pattern))
 import Data.String.Utils (lines)
+import Data.Tuple (Tuple(Tuple), fst, snd)
 import Effect (Effect)
 import Effect.Console (log)
 import Node.Encoding (Encoding(ASCII))
 import Node.FS.Sync (readTextFile)
 
-{- | 1805 is the right answer!
+{- | ? is the right answer!
 -}
 main :: Effect Unit
 main = do
-  contents <- readTextFile ASCII "src/File1.txt"
-  log $ show $ day1 $ day1Part2 $ getNumbers contents
+  contents <- sample -- readTextFile ASCII "src/File1.txt"
+  log $ show $ day2 $ getDeltas contents
 
-getNumbers :: String -> List Int
-getNumbers contents =
-  catMaybes $ map fromString $ fromFoldable $ lines contents
+getDeltas :: String -> Array DirType
+getDeltas deltas =
+  map convertStringToToken $ fromFoldable $ lines deltas
 
-day1Part2 :: List Int -> List Int
-day1Part2 list =
+day2 :: Array DirType -> Int
+day2 list =
   let
-    token =
-      foldl buildTriplets (Token { lst: list, sums: Nil }) list
+    result =
+      foldl (\acc (DirType dt) ->
+              case dt.dir of
+                Forward -> Tuple
+                  ((fst acc) + dt.distance)
+                  dt.distance
+                Down -> Tuple
+                  dt.distance
+                  ((snd acc) + dt.distance)
+                Up -> Tuple
+                  dt.distance
+                  ((snd acc) - dt.distance)
+            ) (Tuple 0 0) list
   in
-    reverse $ drop 2 $ (\(Token t) -> t.sums) token
+    (fst result) * (snd result)
 
-newtype Token = Token { lst :: List Int, sums :: List Int }
+convertStringToToken :: String -> DirType
+convertStringToToken line =
+  let
+    [dir, distance] = split (Pattern " ") line
+    dst = fromString distance
+  in
+    case dir of
+      "forward" -> DirType { dir : Forward, distance : dst }
+      "down"    -> DirType { dir : Down,    distance : dst }
+      "up"      -> DirType { dir : Up,      distance : dst }
 
-derive instance Generic Token _
-instance Show Token where
+data Dir
+  = Forward
+  | Down
+  | Up
+
+derive instance Generic Dir _
+instance Show Dir where
   show = genericShow
 
-buildTriplets :: Token -> Int -> Token
-buildTriplets (Token t) _ =
-  Token
-    { sums: Cons (sum $ take 3 t.lst) t.sums
-    , lst: case tail t.lst of
-        Just x -> x
-        Nothing -> Nil
-    }
+newtype DirType = DirType { dir :: Dir, distance :: Int }
 
-day1 :: List Int -> Int
-day1 Nil = 0
-day1 (x : xs) = day1' x xs 0
-  where
-  day1' :: Int -> List Int -> Int -> Int
-  day1' _ Nil acc = acc
-  day1' prev (next : Nil) acc = determineIncr acc prev next
-  day1' prev (next : xs') acc =
-    day1' next xs'
-      ( determineIncr acc prev next
-      )
+derive instance Generic DirType _
+instance Show DirType where
+  show = genericShow
 
-determineIncr :: Int -> Int -> Int -> Int
-determineIncr acc prev next =
-  acc +
-    if prev < next then 1
-    else 0
+sample :: String
+sample = """
+forward 5
+down 5
+forward 8
+up 3
+down 8
+forward 2
+"""
 
-sample :: List Int
-sample = fromFoldable
-  [ 199
-  , 200
-  , 208
-  , 210
-  , 200
-  , 207
-  , 240
-  , 269
-  , 260
-  , 263
-  ]
-
+foo :: Int
+foo = 5
