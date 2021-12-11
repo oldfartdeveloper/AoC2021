@@ -2,7 +2,7 @@ module Main where
 
 import Prelude
 import Data.Array (head, last)
-import Data.Foldable (class Foldable, foldl)
+import Data.Foldable (foldl)
 import Data.Generic.Rep (class Generic)
 import Data.Int (fromString)
 import Data.Maybe (fromJust)
@@ -11,7 +11,6 @@ import Data.Show.Generic (genericShow)
 import Data.String (split)
 import Data.String.Pattern (Pattern(Pattern))
 import Data.String.Utils (lines)
-import Data.Tuple (Tuple(Tuple), fst, snd)
 import Effect (Effect)
 import Effect.Console (log)
 import Node.Encoding (Encoding(ASCII))
@@ -58,6 +57,7 @@ day2 arr =
             , aim: 0
             }
         )
+        arr
   in
     (unwrap result).horiz * (unwrap result).depth
 
@@ -84,7 +84,7 @@ derive instance Generic Dir _
 instance Show Dir where
   show = genericShow
 
-newtype DirType = DirType { dir :: Dir, distance :: Int, aim :: Int }
+newtype DirType = DirType { dir :: Dir, distance :: Int }
 
 derive instance Generic DirType _
 instance Show DirType where

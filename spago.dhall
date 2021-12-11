@@ -18,6 +18,7 @@ to generate this file without the comments in this block.
   , "foldable-traversable"
   , "integers"
   , "maybe"
+  , "newtype"
   , "node-buffer"
   , "node-fs"
   , "partial"
@@ -25,7 +26,6 @@ to generate this file without the comments in this block.
   , "psci-support"
   , "strings"
   , "stringutils"
-  , "tuples"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
