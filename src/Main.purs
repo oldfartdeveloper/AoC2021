@@ -7,9 +7,11 @@ import Data.Generic.Rep (class Generic)
 import Data.Int (binary, fromStringAs)
 import Data.Maybe (Maybe, fromJust)
 import Data.Newtype (class Newtype, unwrap)
+import Data.Show (class Show)
 import Data.Show.Generic (genericShow)
+import Data.String.CodeUnits (length)
 import Data.String.Common (joinWith)
-import Data.String.Utils (length, lines)
+import Data.String.Utils (lines)
 import Effect (Effect)
 import Effect.Console (log)
 import Node.Encoding (Encoding(UTF8))
@@ -30,6 +32,7 @@ setMask as =
     State
       { bits : map convertStringToBits as
       , screwMask : mask
+      , sums : []
       }
 
 maskFromStr :: String -> Int
@@ -56,36 +59,23 @@ convertStringToBits line =
   unsafePartial $ fromJust $ fromStringAs binary line
 
 newtype State = State
-  { bits :: Array Int
+  { bits :: Array Int -- the input diagnostics
   , screwMask :: Int
+   -- How many more gammas than epsilons for each bit column; can be negative:
+  , sums :: Array Int
   }
 
 derive instance Generic State _
 instance Show State where
   show = genericShow
 
-newtype Diagnostic = Diagnostic
-  { gamma :: Int
-  , epsilon :: Int
-  }
-
-derive instance Newtype Diagnostic _
-derive instance Generic Diagnostic _
-instance Show Diagnostic where
-  show = genericShow
-
--- -- Since epsilon is the complement of gamma, we don't have to
--- -- track it; can derive it at the very end.
--- calculateBits :: Array Int -> Array Diagnostic
--- calculateBits arr =
---   foldl
---     ( \(Diagnostic d) bits ->
---         Diagnostic
---           { gamma: d.gamma
---           }
---     )
---     ( Diagnostic
---         { gamma: 0
---         }
---     )
---     arr
+-- Since epsilon is the complement of gamma, we don't have to
+-- track it; can derive it at the very end.
+calculateBits :: State -> State
+calculateBits (State s) =
+  foldl
+    ( \sums bits ->
+        State s
+    )
+    (State s)
+    s.bits
