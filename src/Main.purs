@@ -4,7 +4,8 @@ import Prelude
 import Data.Array (catMaybes, concat, head, replicate, singleton)
 import Data.Foldable (foldl)
 import Data.Generic.Rep (class Generic)
-import Data.Int (binary, fromStringAs)
+import Data.Int (binary, fromStringAs, toStringAs)
+import Data.Int.Bits (complement)
 import Data.Maybe (Maybe, fromJust)
 import Data.Newtype (class Newtype, unwrap)
 import Data.Show (class Show)
@@ -25,23 +26,19 @@ import Partial.Unsafe (unsafePartial)
 --   contents <- readTextFile UTF8 "src/sample.txt"
 --   log $ show $ day3 $ getBits $ {- setMask $ -}  lines contents
 
-setMask :: Array String -> State
-setMask as =
-  let mask = maskFromStr $ unsafePartial $ fromJust $ head as
+setState :: Array String -> State
+setState as =
+  let
+    len = length $ unsafePartial $ fromJust $ head as
   in
     State
-      { bits : map convertStringToBits as
-      , screwMask : mask
+      { selector : convertStringToBits
+          $ "1" <> (joinWith "" $ concat $ replicate (len - 1) $ singleton "0")
+      , mask : convertStringToBits $ joinWith ""
+          $ concat $ replicate len $ singleton "1"
+      , bits : map convertStringToBits as
       , sums : []
       }
-
-maskFromStr :: String -> Int
-maskFromStr s =
-  let
-    len = length s
-    mask = "1" <> (joinWith "" $ concat $ replicate (len - 1) $ singleton "0")
-  in
-    convertStringToBits mask
 
 getBits :: Array String -> Array Int
 getBits deltas =
@@ -60,7 +57,8 @@ convertStringToBits line =
 
 newtype State = State
   { bits :: Array Int -- the input diagnostics
-  , screwMask :: Int
+  , selector :: Int
+  , mask :: Int
    -- How many more gammas than epsilons for each bit column; can be negative:
   , sums :: Array Int
   }
@@ -79,3 +77,4 @@ calculateBits (State s) =
     )
     (State s)
     s.bits
+
