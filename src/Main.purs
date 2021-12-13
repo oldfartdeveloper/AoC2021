@@ -64,15 +64,15 @@ derive instance Generic State _
 instance Show State where
   show = genericShow
 
--- newtype Diagnostic = Diagnostic
---   { gamma :: Int
---   , epsilon :: Int
---   }
+newtype Diagnostic = Diagnostic
+  { gamma :: Int
+  , epsilon :: Int
+  }
 
--- derive instance Newtype Diagnostic _
--- derive instance Generic Diagnostic _
--- instance Show Diagnostic where
---   show = genericShow
+derive instance Newtype Diagnostic _
+derive instance Generic Diagnostic _
+instance Show Diagnostic where
+  show = genericShow
 
 -- calculateBits :: Array Int -> Array Diagnostic
 -- calculateBits arr =
