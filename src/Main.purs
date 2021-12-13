@@ -38,11 +38,11 @@ maskFromStr s =
     len = length s
     mask = "1" <> (joinWith "" $ concat $ replicate (len - 1) $ singleton "0")
   in
-    unsafePartial $ fromJust $ fromStringAs binary mask
+    convertStringToBits mask
 
--- getBits :: Array String -> Array Int
--- getBits deltas =
---   catMaybes $ map convertStringToBits $ deltas
+getBits :: Array String -> Array Int
+getBits deltas =
+  map convertStringToBits deltas
 
 -- day3 :: Array Int -> Int
 -- day3 arr =
