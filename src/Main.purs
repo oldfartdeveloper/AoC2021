@@ -74,18 +74,18 @@ derive instance Generic Diagnostic _
 instance Show Diagnostic where
   show = genericShow
 
+-- -- Since epsilon is the complement of gamma, we don't have to
+-- -- track it; can derive it at the very end.
 -- calculateBits :: Array Int -> Array Diagnostic
 -- calculateBits arr =
 --   foldl
 --     ( \(Diagnostic d) bits ->
 --         Diagnostic
 --           { gamma: d.gamma
---           , epsilon: d.epsilon
 --           }
 --     )
 --     ( Diagnostic
 --         { gamma: 0
---         , epsilon: 0
 --         }
 --     )
 --     arr
