@@ -1,4 +1,8 @@
-# Day 1 Part 2
+#  TLDR
+
+These are notes taken while working on AoC.
+
+## Day 1 Part 2
 
 So, we have 10 lines in the example which is exactly 1 cycle
 for the puzzle.  The puzzle data is the same file that
@@ -21,3 +25,7 @@ There will be 1600 of these calculation sets.  The answer is
 **1** if the sum of the numbers in the `prev` column is less
 than the sum of the numbers in the `next` column; else **0**.
 Adding the 1600 sets should yield you a number in the range `0 .. 1600`.
+
+## Day 3 Part 1
+
+Convert Ernesto's solution from Haskell screenshot to PureScript code that runs.  See how it compares w/ your code.  Finally, try your not directly calculating for `epsilon` in Ernesto's code.

@@ -1,11 +1,11 @@
 module Main where
 
 import Prelude
-import Data.Array (catMaybes, concat, head, replicate, singleton)
+import Data.Array (catMaybes, concat, cons, head, index, replicate, singleton, updateAt)
 import Data.Foldable (foldl)
 import Data.Generic.Rep (class Generic)
 import Data.Int (binary, fromStringAs, toStringAs)
-import Data.Int.Bits (complement)
+import Data.Int.Bits ((.&.), complement, xor, zshr)
 import Data.Maybe (Maybe, fromJust)
 import Data.Newtype (class Newtype, unwrap)
 import Data.Show (class Show)
@@ -21,60 +21,118 @@ import Partial.Unsafe (unsafePartial)
 
 {- | ? is the right answer!
 -}
--- main :: Effect Unit
--- main = do
---   contents <- readTextFile UTF8 "src/sample.txt"
---   log $ show $ day3 $ getBits $ {- setMask $ -}  lines contents
+main :: Effect Unit
+main = do
+  log $ show $ day3 $ readTextFile UTF8 "src/sample.txt"
+
+day3 :: String -> Int
+day3 str =
+  let
+    readings = lines str
+    s = setState $ readings
+    bits = map convertStringToBits readings
+    accum = calculateSums (unwrap (State s).selector) bits
+    gamma = determineGammaFromSums (unwrap (Accum accum).sums)
+    epsilon = gamma $ xor (unwrap (State s).mask) gamma
+  in
+    gamma * epsilon
 
 setState :: Array String -> State
 setState as =
   let
-    len = length $ unsafePartial $ fromJust $ head as
+    len = length $ unsafeJust $ head as
   in
     State
-      { selector : convertStringToBits
+      { selector: convertStringToBits
           $ "1" <> (joinWith "" $ concat $ replicate (len - 1) $ singleton "0")
-      , mask : convertStringToBits $ joinWith ""
-          $ concat $ replicate len $ singleton "1"
-      , bits : map convertStringToBits as
-      , sums : []
+      , mask: convertStringToBits $ joinWith ""
+          $ concat
+          $ replicate len
+          $ singleton "1"
+      , initialSums: concat $ replicate len $ singleton 0
       }
-
-getBits :: Array String -> Array Int
-getBits deltas =
-  map convertStringToBits deltas
-
--- day3 :: Array Int -> Int
--- day3 arr =
---   let
---     result = calculateBits arr
---   in
---     (unwrap result).gamma * (unwrap result).epsilon
 
 convertStringToBits :: String -> Int
 convertStringToBits line =
-  unsafePartial $ fromJust $ fromStringAs binary line
+  unsafeJust $ fromStringAs binary line
+
+-- Since epsilon is the bitwise exclusive OR of gamma, we don't have to
+-- track it; can derive it at the very end.
+calculateSums :: State -> Array Int -> Array Int
+calculateSums (State s) bits =
+  let
+    accum = Accum
+      { selector: s.selector
+      , sums: s.initialSums
+      , offset: 0
+      }
+  in
+    foldl
+      calculateSumsForRow
+      accum
+      bits
+
+-- Build sums for one reading
+calculateSumsForRow :: Accum -> Int -> Accum
+calculateSumsForRow (Accum accum) reading =
+  foldl
+    ( \acc sum ->
+        let
+          bump :: Int
+          bump =
+            if (acc.selector .&. reading >= 0)
+            then 1
+            else (-1)
+        in
+          Accum
+            { selector : zshr acc.selector 1
+            , sums : (unsafeJust $
+                      updateAt
+                        acc.offset
+                        (sum + (bump :: Int))
+                        acc.sums
+                     )
+            , offset : acc.offset + 1
+            }
+    )
+    accum
+    accum.sums
+
+determineGammaFromSums :: Array Int -> Int
+determineGammaFromSums sums =
+  b2n $
+    foldl
+      ( \sum bin ->
+          let
+            bit =
+              if sum >= 0 then 1 else 0
+          in
+            cons bit bin
+      )
+      []
+      sums
+
+-- Converts a binary contained in an array as 1 or 0
+-- to a radix-10 Int
+b2n :: Array Int -> Int
+b2n = foldl (\c b -> 2 * c + b) 0
 
 newtype State = State
-  { bits :: Array Int -- the input diagnostics
-  , selector :: Int
+  { selector :: Int
   , mask :: Int
-   -- How many more gammas than epsilons for each bit column; can be negative:
-  , sums :: Array Int
+  , initialSums :: Array Int
   }
 
 derive instance Generic State _
 instance Show State where
   show = genericShow
 
--- Since epsilon is the complement of gamma, we don't have to
--- track it; can derive it at the very end.
-calculateBits :: State -> State
-calculateBits (State s) =
-  foldl
-    ( \sums bits ->
-        State s
-    )
-    (State s)
-    s.bits
+newtype Accum = Accum
+  { selector :: Int
+  , sums :: Array Int
+  , offset :: Int
+  }
+
+unsafeJust :: forall a. Maybe a -> a
+unsafeJust x = unsafePartial $ fromJust x
 
