@@ -2,7 +2,7 @@ module Aoc22 where
 
 import Prelude
 
-import Data.Array (init, length, tail)
+import Data.Array (length)
 
 import ProcessInput (processInput)
 

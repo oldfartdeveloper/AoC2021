@@ -1,11 +1,11 @@
 module ProcessInput where
 
-import Prelude
+import Prelude (map, otherwise, ($), (<<<), (==))
 
-import Data.Array ((..), index, init, length, tail)
+import Data.Array (index, init, tail)
 import Data.Int (fromString)
 import Data.String.Common (split)
-import Data.String.Pattern
+import Data.String.Pattern (Pattern(..))
 import Data.String.Utils (lines)
 import Utils (unsafeJust)
 
@@ -29,6 +29,7 @@ newtype Range = Range
   , end :: Int
   }
 
+processInput :: String -> Array SpecLine
 processInput inputText =
   map makeSpecLine $ getLines inputText
   where
@@ -72,6 +73,9 @@ makeSpecLine specLineStr =
 
         getEnds :: Array Int
         getEnds =
+          -- NOTE: before splitting on "::", you forgot to split on "="
+          -- Might do a guard check on "x=", "y=", and "z=" to assign (or not
+          -- and just presume x, y, and z are in order).
           map parseInt $ (split (Pattern "::") $ dim)
           where
           dim :: String
