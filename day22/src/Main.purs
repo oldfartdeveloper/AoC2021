@@ -1,5 +1,7 @@
 module Main where
 
+-- The TryPureScript command to use this file is:
+-- https://try.purescript.org/?github=/oldfartdeveloper/AoC2021/main/day22/src/Main.purs
 import Prelude
 import Data.Array (index, init, length, tail)
 import Data.Generic.Rep (class Generic)
@@ -26,11 +28,6 @@ on x=11..13,y=11..13,z=11..13
 off x=9..11,y=9..11,z=9..11
 on x=10..10,y=10..10,z=10..10
 """
-
-newtype SpecLine = SpecLine
-  { state :: State
-  , cuboid :: Cuboid
-  }
 
 newtype SpecLine = SpecLine
   { state :: State
